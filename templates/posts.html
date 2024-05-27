@@ -1,0 +1,41 @@
+{% for item in data %}
+<article class="postcard dark blue">
+    <a class="postcard__img_link" href="#">
+        <img class="postcard__img" src="{{ url_for('uploaded_file2', filename=item.img_url) }}" onerror="this.onerror=null; this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqKrA0er90LkB21SUccqN8xwMOiHYyqMGEwwSgMg6rcw&s';" alt="Image Title" />
+    </a>
+    <div class="postcard__text">
+        <h1 class="postcard__title blue bluehi8">{{ item.recipe_name }}</h1>
+        <div class="postcard__subtitle small">
+            <time datetime="{{ item.created_at }}">
+                <i class="fas fa-calendar-alt mr-2"></i>{{ item.created_at.strftime('%a, %b %dth %Y') }}
+            </time>
+            <p style="color: #007bff;">By: <a href="{{ url_for('view_profile', user_id=item.author.id) }}" style="color: #007bff;">{{ item.author.name }}</a></p>
+        </div>
+        <div class="postcard__bar"></div>
+        <div class="postcard__preview-txt">{{ item.description }}</div>
+        <ul class="postcard__tagbox counter_98">
+            <li class="tag__item">
+                <form action="{{ url_for('like_post', post_id=item.id) }}" method="post" class="d-inline like-form">
+                    {% if current_user.is_authenticated: %}
+                        <button type="submit" class="btn like-btn {% if item.id in user_liked_post_ids %}liked{% endif %}">
+                            {% if item.id in user_liked_post_ids %}
+                                <i class="bi bi-heart-fill text-danger"></i>
+                            {% else %}
+                                <i class="bi bi-heart text-secondary"></i>
+                            {% endif %}
+                        </button>
+                    {% else %}
+                        <button type="reset" class="btn">
+                            Please Login or Register to Like a post!
+                        </button>
+                    {% endif %}
+                </form>
+            </li>
+            <li class="tag__item like-count">{{ item.likes|length }} Like</li>
+            <li class="tag__item play blue">
+                <a href="{{ url_for('post_show', post_id=item.id) }}"><i class="fas fa-play mr-2 me-2"></i>View</a>
+            </li>
+        </ul>
+    </div>
+</article>
+{% endfor %}

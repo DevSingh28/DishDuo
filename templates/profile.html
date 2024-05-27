@@ -1,0 +1,193 @@
+{% from 'bootstrap5/form.html' import render_form %}
+{% include 'header.html' %}
+
+<div class="container text-center classy2">
+  <div class="row">
+    <div class="col-md-6 align-self-center">
+      <img src="{{ url_for('uploaded_file', filename=user.profile_pic) }}" class="img-fluid imgy" alt="...">
+      <p class="mb-2">{{ user.name }}</p>
+        <p class="mb-2">{{ user.username }}</p>
+    </div>
+    <div class="col-md-6 align-self-center">
+      <div class="row">
+            <div class="col-6 mt-5 text-center attractive-followers">
+      <i class="fas fa-users"></i>  <h5 class="bold-font">My Community</h5>
+      <p class="box"><b>{{ followers_count }}</b></p>
+    </div>
+    <div class="col-6 mt-5 text-center attractive-following">
+      <i class="fas fa-arrow-right"></i>  <h5 class="bold-font">Following Inspiration</h5>
+      <p><b>{{ following_count }}</b></p>
+    </div>
+        <div class="col-8 mt-5 text-center">
+          <span id="element" style="color: rgba(89, 212, 70, 0.8)"></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 align-self-center">
+      {% if not current_user.is_authenticated %}
+        <div class="btn-group my-3">
+                  <a class="btn btn-sm btn-outline-danger" href="{{ url_for('login') }}">Login</a>
+                  <a class="btn btn-sm btn-outline-danger" href="{{ url_for('register') }}">Register</a>
+            </div>
+      {% else %}
+          {% if current_user.id == user.id %}
+        <button type="button" class="btn btn-success btn-glow-green mx-5 my-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Edit Profile
+    </button>
+    {% else %}
+        <form id="follow-form" action="{{ url_for('follow_user', user_id=user.id) }}" method="post">
+            <button id="follow-btn" class="btn btn-success btn-glow-green mx-5 my-3">Follow</button>
+         </form>
+      {% endif %}
+    {% endif %}
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Profile</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+            <form action="{{ url_for('edit_profile') }}" method="post">
+                                <div class="mb-3">
+                                    <label for="inputName" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="inputName" name="name" value="{{ current_user.name }}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="inputbio" class="form-label">Bio</label>
+                                    <input type="text" class="form-control" id="inputbio" name="bio" value="{{ current_user.bio }}" maxlength="30">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </form>
+          <div class="btn-group my-3">
+                  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_profile_pic') }}">Update Profile Pic</a>
+                  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('forgot_password') }}">Update Password</a>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+    </div>
+  </div>
+</div>
+<div class="album py-5 bg-body-tertiary">
+    <div class="container">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for posts in user_posts %}
+        <div class="col">
+          <div class="card shadow-sm">
+            <img src="{{ url_for('uploaded_file2', filename=posts.img_url) }}" class="img-fluid imgy2 rounded" alt="...">
+                <div class="btn-group">
+                  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('post_show', post_id=posts.id) }}">View</a>
+                    {% if current_user.id == user.id or is_super_admin %}
+                  <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('delete_post', post_id=posts.id) }}">Delete</a>
+                    {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+<script>
+    var typed = new Typed('#element', {
+      strings: ['<i>{{ user.bio }}</i>'],
+      typeSpeed: 50,
+    });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.addEventListener('mousemove', function (e) {
+      const dot = document.createElement('div');
+      dot.classList.add('green-dot');
+      dot.style.position = 'fixed';
+      dot.style.left = `${e.clientX}px`;
+      dot.style.top = `${e.clientY}px`;
+      document.body.appendChild(dot);
+      setTimeout(() => {
+        dot.style.transform = 'scale(0)';
+      }, 100);
+      setTimeout(() => {
+        dot.remove();
+      }, 1000);
+    });
+  });
+</script>
+<script>
+  const myModal = document.getElementById('myModal')
+const myInput = document.getElementById('myInput')
+
+myModal.addEventListener('shown.bs.modal', () => {
+  myInput.focus()
+})
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const followForm = document.getElementById('follow-form');
+        const followBtn = document.getElementById('follow-btn');
+
+        // Update button appearance on page load
+        updateButtonAppearance();
+
+        followForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Submit the form using AJAX
+            fetch(this.action, { method: 'POST' })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the follow button appearance based on the response
+                    updateButtonAppearance();
+                    // Update the follower count display based on the response
+                    const followersCountElement = document.querySelector('.attractive-followers p');
+                    followersCountElement.textContent = data.follower_count;
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        function updateButtonAppearance() {
+            // Check if the user is authenticated
+            const isAuthenticated = {{ current_user.is_authenticated|tojson }};
+            // If authenticated, fetch the follow status from the server
+            if (isAuthenticated) {
+                fetchFollowStatus();
+            } else {
+                // If user is not authenticated, always show "Follow" button
+                followBtn.textContent = 'Follow';
+            }
+        }
+
+        function fetchFollowStatus() {
+            // Fetch the follow status from the server
+            fetch('{{ url_for("get_follow_status", user_id=user.id) }}')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the follow button text based on the follow status
+                    if (data.followed) {
+                        followBtn.textContent = 'Following';
+                    } else {
+                        followBtn.textContent = 'Follow';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    });
+</script>
+
+{% include 'footer.html' %}

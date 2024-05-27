@@ -1,0 +1,107 @@
+{% from 'bootstrap5/form.html' import render_form %}
+{% include 'header.html' %}
+<div class="p-4 p-md-5 mb-4 mt-5 rounded text-body-emphasis bg-body-secondary" style="background-image: url('../static/img/back_img.jpg'); background-size: cover; background-position: center;">
+    <div class="col-lg-6 px-0">
+      <h1 class="display-4 fw-bold mt-2">Discover Exciting Recipes on DishDuo</h1>
+      <p class="lead my-3">Welcome to DishDuo, your go-to destination for mouthwatering recipes, culinary inspiration, and community connections. Explore our curated collection of delicious dishes, learn new cooking techniques, and join a vibrant community of food enthusiasts. Let's embark on a flavorful journey together!</p>
+    </div>
+</div>
+
+<div id="post-container" class="container text-center mt-5">
+  <div class="row">
+    <div class="col">
+      <img id="post-image" class="img-fluid" src="{{ url_for('uploaded_file2', filename=post.img_url) }}" alt="">
+    </div>
+  </div>
+  <div class="container d-flex align-items-center justify-content-center flex-wrap container56">
+        <div class="box">
+            <div class="body">
+                <div class="imgContainer">
+                    <img src="{{ url_for('uploaded_file', filename=user_id.profile_pic) }}" alt="">
+                </div>
+                <div class="content d-flex flex-column align-items-center justify-content-center">
+                    <div>
+                        <h3 class="text-white fs-5">{{ user_id.name }}</h3>
+                        <p class="fs-6 text-white"><a href="{{ url_for('view_profile', user_id=user_id.id) }}">View Profile</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box">
+            <div class="body">
+                <div class="imgContainer">
+                    <img src="https://images.pexels.com/photos/1532771/pexels-photo-1532771.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940" alt="">
+                </div>
+                <div class="content d-flex flex-column align-items-center justify-content-center">
+                    <div>
+                        <h3 class="text-white fs-5">Total Like: {{ total_likes }}</h3>
+                        <h3 class="text-white fs-5">Total Comment: {{ total_comments }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if post.yt %}
+<div class="container text-center mt-5">
+    <div class="row">
+        <div class="col">
+            <h2 class="mb-4">Watch Video:</h2>
+            <div class="video-container">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ extract_video_id(post.yt) }}" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col">
+            <h2 class="mb-4 text-center">Process</h2>
+            <p class="post-text">{{ post.steps | safe }}</p>
+        </div>
+    </div>
+</div>
+<div class="container mb-5">
+    <form class="card border-primary mb-3" method="post">
+        {% if current_user.is_authenticated %}
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Add a Comment</h5>
+        </div>
+        <div class="card-body">
+            {{ render_form(form, novalidate=True, button_map={"submit": "success"}) }}
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+        </div>
+        {% endif %}
+    </form>
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">Comments</h5>
+        </div>
+        <div class="card-body">
+            {% if cmnt %}
+                {% for comment in cmnt %}
+                    <div class="card mb-2"> <!-- Reduced margin bottom -->
+                        <div class="card-body p-2"> <!-- Reduced padding -->
+                            <p class="card-text mb-1">{{ comment.content }}</p> <!-- Reduced margin bottom -->
+                            {% if current_user.id == comment.author_id or is_super_admin %}
+                                <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer text-muted py-1"> <!-- Reduced padding -->
+                            Comment by: {{ comment.author.name }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No comments yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}

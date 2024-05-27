@@ -1,0 +1,110 @@
+{% include 'header.html' %}
+<div class="px-4 pt-5 my-5 text-center border-bottom">
+    <h1 class="display-4 fw-bold text-body-emphasis"><span id="elementnino" class="animated-heading"></span></h1>
+
+    <div class="col-lg-6 mx-auto">
+      <p class="lead mb-4"> "DishDuo is your ultimate destination for all things culinary. Discover and share mouthwatering recipes, connect with fellow food enthusiasts, and embark on a flavorful journey together. Whether you're a seasoned chef or a kitchen novice, DishDuo offers a vibrant community where you can explore, learn, and celebrate the joy of cooking. Join us and unleash your culinary creativity today!"</p>
+    </div>
+    <div class="overflow-hidden" style="max-height: 100%;">
+    <div class="container my-5">
+        <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg flex-column-reverse flex-lg-row">
+            <div class="col-lg-7">
+                <div class="p-3 p-lg-5 pt-lg-3">
+                    <h1 class="display-4 fw-bold lh-1 text-body-emphasis animated-heading2">
+        <span class="robot-char" style="--char-index: 0;">D</span>
+        <span class="robot-char" style="--char-index: 1;">i</span>
+        <span class="robot-char" style="--char-index: 2;">s</span>
+        <span class="robot-char" style="--char-index: 3;">h</span>
+        <span class="robot-char" style="--char-index: 4;">D</span>
+        <span class="robot-char" style="--char-index: 5;">u</span>
+        <span class="robot-char" style="--char-index: 6;">o</span>
+        <span class="robot-char" style="--char-index: 7;"> </span>
+        <span class="robot-char" style="--char-index: 8;">A</span>
+        <span class="robot-char" style="--char-index: 9;">I</span>
+    </h1>
+                    <p class="lead">Discover Inspiring Culinary Creations with Our Advanced Recipe Generation Tool</p>
+                    <div class="d-grid gap-2 justify-content-center mb-4 mb-lg-3">
+                        {% if current_user.is_authenticated %}
+    <button type="button" class="btn demo-cardy btn-lg px-4 me-md-2 fw-bold">
+        <a href="{{ url_for('recipe_ai') }}">Generate Recipe</a>
+    </button>
+                        {% else %}
+                        <button type="reset" class="btn demo-cardy btn-lg px-4 me-md-2 fw-bold">
+        <small style="color: red;">Please Login or Register to generate recipe</small>
+    </button>
+                        {% endif %}
+</div>
+
+                </div>
+            </div>
+            <div class="col-lg-4 offset-lg-1 shadow-lg">
+                <img class="rounded-lg-3 img-fluid" src="../static/img/robo.png" alt="robo_image" height="500">
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="dropdown mb-3 mt-3">
+  <button class="btn btn-secondary dropdown-toggle mx-auto" type="button" data-bs-toggle="dropdown" aria-expanded="true">
+    Updates
+  </button>
+  <ul class="dropdown-menu dropdown-menu-dark">
+    <li>No new update available at this time.</li>
+  </ul>
+</div>
+</div>
+
+<!--new #########################-->
+<section class="dark">
+	<div class="container py-4">
+        <div id="posts-container">
+        {% for item in data %}
+		<article class="postcard dark blue">
+			<a class="postcard__img_link" href="#">
+				<img class="postcard__img" src="{{ url_for('uploaded_file2', filename=item.img_url) }}" onerror="this.onerror=null; this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqKrA0er90LkB21SUccqN8xwMOiHYyqMGEwwSgMg6rcw&s';" alt="Image Title" loading="lazy"/>
+			</a>
+			<div class="postcard__text">
+				<h1 class="postcard__title blue bluehi8">{{ item.recipe_name }}</h1>
+				<div class="postcard__subtitle small">
+					<time datetime="{{ item.created_at }}">
+            <i class="fas fa-calendar-alt mr-2"></i>{{ item.created_at.strftime('%a, %b %dth %Y') }}
+        </time>
+                    <p style="color: #007bff;">By: <a href="{{ url_for('view_profile', user_id=item.author.id) }}" style="color: #007bff;">{{ item.author.name }}</a></p>
+				</div>
+				<div class="postcard__bar"></div>
+				<div class="postcard__preview-txt">{{ item.description }}</div>
+				<ul class="postcard__tagbox counter_98">
+					<li class="tag__item">
+    <form action="{{ url_for('like_post', post_id=item.id) }}" method="post" class="d-inline like-form">
+        {% if current_user.is_authenticated: %}
+            <button type="submit" class="btn like-btn {% if item.id in user_liked_post_ids %}liked{% endif %}">
+                {% if item.id in user_liked_post_ids %}
+                    <i class="bi bi-heart-fill text-danger"></i>
+                {% else %}
+                    <i class="bi bi-heart text-secondary"></i>
+                {% endif %}
+            </button>
+        {% else %}
+            <button type="reset" class="btn">
+                Please Login or Register to Like a post!
+            </button>
+        {% endif %}
+    </form>
+</li>
+					<li class="tag__item like-count">{{ item.likes|length }} Like</li>
+					<li class="tag__item play blue">
+						<a href="{{ url_for('post_show', post_id=item.id) }}"><i class="fas fa-play mr-2 me-2"></i>View</a>
+					</li>
+				</ul>
+			</div>
+		</article>
+        {% endfor %}
+        </div>
+        <div class="d-flex justify-content-center">
+  <button id="load-more-button" class="btn btn-sm btn-outline-secondary">Load More</button>
+</div>
+
+    </div>
+</section>
+
+{% include 'footer.html' %}

@@ -1,0 +1,66 @@
+{% from 'bootstrap5/form.html' import render_form %}
+{% include 'header.html' %}
+
+<div class="container col-xl-10 col-xxl-8 px-4 py-5 classy">
+  <div class="row align-items-center g-lg-5 py-5">
+    <div class="col-lg-7 text-center text-lg-start">
+      <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3 animated-heading">"Welcome Back to DishDuo!"</h1>
+      <p class="col-lg-10 fs-4">"Ready to dive back into the culinary world? Log in to your DishDuo account and reconnect with your favorite recipes, engage with fellow foodies, and unlock exclusive features. Let's pick up where we left off and continue our culinary adventure together!"</p>
+    </div>
+    <div class="col-md-10 mx-auto col-lg-5">
+      {% with messages = get_flashed_messages() %}
+            {%  if messages %}
+            {% for i in messages %}
+            <p style="color: red;">{{ i }}</p>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+      <form class="p-4 p-md-5 border rounded-3 bg-body-tertiary" method="post">
+        {{ render_form(form, novalidate=True, button_map={"submit": "success btn-glow-green"}) }}
+        <div id="overlay" style="display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 2; cursor: pointer;"></div>
+        <div id="spinner" class="spinner-grow" role="status" style="display: none; position: fixed; top: 50%; left: 50%; z-index: 3;">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </form>
+      <div class="mt-3 text-center">
+        <a href="{{ url_for('forgot_password') }}" class="link-primary">Forgot Password?</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.body.addEventListener('mousemove', function (e) {
+      const dot = document.createElement('div');
+      dot.classList.add('green-dot');
+      dot.style.position = 'fixed';
+      dot.style.left = `${e.clientX}px`;
+      dot.style.top = `${e.clientY}px`;
+      document.body.appendChild(dot);
+      setTimeout(() => {
+        dot.style.transform = 'scale(0)';
+      }, 100);
+      setTimeout(() => {
+        dot.remove();
+      }, 1000);
+    });
+  });
+</script>
+
+<script>
+  function showSpinner() {
+    var spinner = document.getElementById('spinner');
+    var overlay = document.getElementById('overlay');
+    spinner.style.display = 'block';
+    overlay.style.display = 'block';
+    setTimeout(function() {
+      spinner.style.display = 'none';
+      overlay.style.display = 'none';
+    }, 2000);
+  }
+</script>
+
+
+
+{% include 'footer.html' %}
