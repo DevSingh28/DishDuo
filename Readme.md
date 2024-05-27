@@ -48,4 +48,5 @@ DishDuo is a modern and intuitive recipe sharing platform built using Flask. It 
 - Contributions are welcome! If you have any suggestions, feature requests, or bug reports, please open an issue or create a pull request.
 
 ## License
-- This project is licensed under the MIT License - see the LICENSE file for details.
+
+This project is licensed under the Proprietary License - see the [LICENSE](License.txt) file for details.
