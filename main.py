@@ -102,7 +102,7 @@ def verify_password(user):
     send_mail(user.email, subject, body)
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///main.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URI3", "sqlite:///main.db")
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
