@@ -9,7 +9,7 @@ from sqlalchemy import Integer, String, ForeignKey, Column, Table, DateTime, des
 from flask_login import LoginManager, login_user, logout_user, UserMixin, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from itsdangerous import URLSafeTimedSerializer
-import smtplib
+import requests
 import random
 from flask_ckeditor import CKEditor
 from functools import wraps
@@ -57,6 +57,8 @@ ckeditor = CKEditor(app)
 
 author_email = os.environ.get("myemail")
 author_password = os.environ.get("gm_pass")
+mailersend_api_key = os.environ.get('mailersend_api_key')
+sender_email = os.environ.get('owner_gm')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -82,15 +84,20 @@ def admin_only(f):
 
 
 def send_mail(recipient, subject, body):
-    with smtplib.SMTP("smtp.gmail.com") as connect:
-        connect.starttls()
-        connect.login(user=author_email, password=author_password)
-        message = f"Subject: {subject}\n\n{body}"
-        connect.sendmail(
-            from_addr=author_email,
-            to_addrs=recipient,
-            msg=message,
+    try:
+        response = requests.post(
+            'https://api.mailersend.com/v1/email',
+            json={
+                'to': [{'email': recipient}],
+                'subject': subject,
+                'text': body,
+                'from': {'email': sender_email}
+            },
+            headers={'Authorization': f'Bearer {mailersend_api_key}'}
         )
+        response.raise_for_status()
+    except Exception as e:
+        pass
 
 
 def verify_password(user):
