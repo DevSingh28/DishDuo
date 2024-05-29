@@ -4,7 +4,7 @@
 <div class="container text-center classy2">
   <div class="row">
     <div class="col-md-6 align-self-center">
-      <img src="{{ url_for('uploaded_file', filename=user.profile_pic) }}" class="img-fluid imgy" alt="...">
+      <img src="{{ user.profile_pic }}" class="img-fluid imgy" alt="...">
       <p class="mb-2">{{ user.name }}</p>
         <p class="mb-2">{{ user.username }}</p>
     </div>
@@ -80,7 +80,7 @@
         {% for posts in user_posts %}
         <div class="col">
           <div class="card shadow-sm">
-            <img src="{{ url_for('uploaded_file2', filename=posts.img_url) }}" class="img-fluid imgy2 rounded" alt="...">
+            <img src="{{ posts.img_url }}" class="img-fluid imgy2 rounded" alt="...">
                 <div class="btn-group">
                   <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('post_show', post_id=posts.id) }}">View</a>
                     {% if current_user.id == user.id or is_super_admin %}

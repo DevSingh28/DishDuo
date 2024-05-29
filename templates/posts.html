@@ -1,7 +1,7 @@
 {% for item in data %}
 <article class="postcard dark blue">
     <a class="postcard__img_link" href="#">
-        <img class="postcard__img" src="{{ url_for('uploaded_file2', filename=item.img_url) }}" onerror="this.onerror=null; this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqKrA0er90LkB21SUccqN8xwMOiHYyqMGEwwSgMg6rcw&s';" alt="Image Title" />
+        <img class="postcard__img" src="{{ item.img_url }}" onerror="this.onerror=null; this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqKrA0er90LkB21SUccqN8xwMOiHYyqMGEwwSgMg6rcw&s';" alt="Image Title" />
     </a>
     <div class="postcard__text">
         <h1 class="postcard__title blue bluehi8">{{ item.recipe_name }}</h1>

@@ -1,9 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, EqualTo, Email, Length
 from flask_ckeditor import CKEditorField
-from wtforms import StringField, PasswordField, EmailField, SubmitField, SelectField, TextAreaField, HiddenField, \
-    ValidationError
-from flask_wtf.file import FileField, FileAllowed
+from wtforms import StringField, PasswordField, EmailField, SubmitField, SelectField, TextAreaField, HiddenField
 
 
 class RegisterForm(FlaskForm):
@@ -11,17 +9,10 @@ class RegisterForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     bio = TextAreaField('Bio', validators=[Length(max=100)])
-    profile_pic = FileField('Profile Picture',
-                            validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    profile_pic = StringField('Profile Photo Url', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField("Create Account")
-
-    def validate_profile_pic(self, field):
-        if field.data:
-            filename = field.data.filename
-            if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in ['jpg', 'png', 'jpeg']):
-                raise ValidationError('Invalid file format. Please upload an image file.')
 
 
 class LoginForm(FlaskForm):
@@ -49,17 +40,10 @@ class OtpForm(FlaskForm):
 class PostForm(FlaskForm):
     recipe_name = StringField("Name of Recipe", validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired(), Length(max=200)])
-    img_url = FileField('Recipe photo',
-                        validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    img_url = StringField('Recipe photo url', validators=[DataRequired()])
     yt = StringField('Youtube Link (* Optional But Better if you provide)')
     steps = CKEditorField('Process to make the Recipe', validators=[DataRequired()])
     submit = SubmitField('Post')
-
-    def validate_profile_pic(self, field):
-        if field.data:
-            filename = field.data.filename
-            if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in ['jpg', 'png', 'jpeg']):
-                raise ValidationError('Invalid file format. Please upload an image file.')
 
 
 class CreateCommentForm(FlaskForm):
@@ -78,21 +62,13 @@ class LikePostForm(FlaskForm):
 
 
 class ProfilePP(FlaskForm):
-    profile_pic = FileField('New Profile Picture',
-                            validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    profile_pic = StringField('New Profile Pic', validators=[DataRequired()])
     submit = SubmitField("Update")
-
-    def validate_profile_pic(self, field):
-        if field.data:
-            filename = field.data.filename
-            if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in ['jpg', 'png', 'jpeg']):
-                raise ValidationError('Invalid file format. Please upload an image file.')
 
 
 class AiForm(FlaskForm):
     input = StringField('Enter The Ingredients: ', validators=[DataRequired()])
     submit = SubmitField("Enter")
-
 
 
 """

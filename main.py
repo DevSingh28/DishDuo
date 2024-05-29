@@ -1,5 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, session, request, abort, flash, jsonify, \
-    send_from_directory
+from flask import Flask, render_template, redirect, url_for, session, request, abort, flash, jsonify
 from flask_bootstrap import Bootstrap5
 from forms import RegisterForm, LoginForm, ResetPasswordForm, ForgotPasswordForm, OtpForm, CreateCommentForm, PostForm, \
     ProfilePP, AiForm
@@ -14,7 +13,6 @@ import random
 from flask_ckeditor import CKEditor
 from functools import wraps
 import os
-from werkzeug.utils import secure_filename
 from datetime import datetime, timezone
 from urllib.parse import urlparse, parse_qs
 from g4f.client import Client
@@ -36,19 +34,6 @@ def extract_video_id(url):
 
 
 app = Flask(__name__)
-
-current_directory = os.getcwd()
-upload_folder_name = 'uploads_pp'
-upload_folder_path = os.path.join(current_directory, upload_folder_name)
-if not os.path.exists(upload_folder_path):
-    os.makedirs(upload_folder_path)
-app.config['UPLOAD_FOLDER'] = upload_folder_path
-
-upload_folder_name2 = 'uploads_post'
-upload_folder_path2 = os.path.join(current_directory, upload_folder_name2)
-if not os.path.exists(upload_folder_path2):
-    os.makedirs(upload_folder_path2)
-app.config['UPLOAD_FOLDER_POST'] = upload_folder_path2
 
 Bootstrap5(app)
 app.secret_key = os.environ.get("coffee_key")
@@ -148,7 +133,7 @@ class User(Base, UserMixin):
     username: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     bio: Mapped[str] = mapped_column(String)
-    profile_pic: Mapped[str] = mapped_column(String)
+    profile_pic: Mapped[str] = mapped_column(String, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
 
     posts = relationship("Post", back_populates="author")
@@ -245,16 +230,6 @@ def search_users():
     return jsonify(users=users_json)
 
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-@app.route('/uploads2/<filename>')
-def uploaded_file2(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER_POST'], filename)
-
-
 @app.route('/profile')
 def user_profile():
     now_user = current_user.id
@@ -297,10 +272,7 @@ def edit_profile_pic():
     form = ProfilePP()
     if form.validate_on_submit():
         profile_pic = form.profile_pic.data
-        filename = secure_filename(profile_pic.filename)
-        filename = f"user_{random.randint(10, 999)}_{filename}"
-        profile_pic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        current_user.profile_pic = filename
+        current_user.profile_pic = profile_pic
         db.session.commit()
         return redirect(url_for('user_profile'))
     return render_template('profile_update.html', form=form)
@@ -379,9 +351,6 @@ def register():
             return redirect(url_for('register'))
         else:
             profile_pic = form.profile_pic.data
-            filename = secure_filename(profile_pic.filename)
-            filename = f"user_{random.randint(10, 999)}_{filename}"
-            profile_pic.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             otp = generate_otp()
             subject = "OTP for Registration"
             body = f"Dear Foodie,\nWe're thrilled to have you join us! Your registration OTP is {otp}.\nRemember to indulge responsibly, and don't forget to wash your hands before enjoying your culinary adventure."
@@ -390,7 +359,7 @@ def register():
             session['name'] = form.name.data
             session['username'] = form.username.data
             session['email'] = email_data
-            session['profile_pic'] = filename
+            session['profile_pic'] = profile_pic
             session['bio'] = form.bio.data
             session['password'] = form.password.data
             return redirect(url_for('verify_otp'))
@@ -429,7 +398,8 @@ def verify_otp():
                 salt_length=8
             )
 
-            new_user = User(name=name, username=username, email=email, bio=bio, profile_pic=profile_pic, password=new_password)
+            new_user = User(name=name, username=username, email=email, bio=bio, profile_pic=profile_pic,
+                            password=new_password)
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user)
@@ -448,13 +418,10 @@ def create_post():
     form = PostForm()
     if form.validate_on_submit():
         recipe_picture = form.img_url.data
-        filename = secure_filename(recipe_picture.filename)
-        filename = f"user_{random.randint(10, 999)}_{filename}"
-        recipe_picture.save(os.path.join(app.config['UPLOAD_FOLDER_POST'], filename))
         new_post = Post(
             recipe_name=form.recipe_name.data,
             description=form.description.data,
-            img_url=filename,
+            img_url=recipe_picture,
             yt=form.yt.data,
             steps=form.steps.data,
             author_id=current_user.id
@@ -589,7 +556,6 @@ def remove_me():
 
 if __name__ == '__main__':
     app.run(port=5002)
-
 
 """
 DishDuo
