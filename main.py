@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap5
 from forms import RegisterForm, LoginForm, ResetPasswordForm, ForgotPasswordForm, OtpForm, CreateCommentForm, PostForm, \
     ProfilePP, AiForm
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, relationship, Session
+from sqlalchemy.orm import DeclarativeBase, relationship, Session, mapped_column, Mapped
 from sqlalchemy import Integer, String, ForeignKey, Column, Table, DateTime, desc
 from flask_login import LoginManager, login_user, logout_user, UserMixin, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -145,13 +145,13 @@ followers = Table('followers',
 
 class User(Base, UserMixin):
     __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
-    username = Column(String, nullable=False, unique=True)
-    email = Column(String, unique=True, nullable=False)
-    bio = Column(String)
-    profile_pic = Column(String)
-    password = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    username: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    bio: Mapped[str] = mapped_column(String)
+    profile_pic: Mapped[str] = mapped_column(String)
+    password: Mapped[str] = mapped_column(String, nullable=False)
 
     posts = relationship("Post", back_populates="author")
     comments = relationship("Comment", back_populates="author")
@@ -178,14 +178,14 @@ class User(Base, UserMixin):
 
 class Post(Base):
     __tablename__ = 'post'
-    id = Column(Integer, primary_key=True)
-    recipe_name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    img_url = Column(String, nullable=False)
-    yt = Column(String, nullable=False, default=None)
-    steps = Column(String, nullable=False)
-    author_id = Column(Integer, ForeignKey('user.id'))
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    recipe_name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    img_url: Mapped[str] = mapped_column(String, nullable=False)
+    yt: Mapped[str] = mapped_column(String, nullable=False, default=None)
+    steps: Mapped[str] = mapped_column(String, nullable=False)
+    author_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
 
     # Define relationships
     author = relationship("User", back_populates="posts")
@@ -195,11 +195,11 @@ class Post(Base):
 
 class Comment(Base):
     __tablename__ = 'comment'
-    id = Column(Integer, primary_key=True)
-    content = Column(String, nullable=False)
-    author_id = Column(Integer, ForeignKey('user.id'))
-    post_id = Column(Integer, ForeignKey('post.id'))
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    content: Mapped[str] = mapped_column(String, nullable=False)
+    author_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'))
+    post_id: Mapped[int] = mapped_column(Integer, ForeignKey('post.id'))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc))
 
     # Define relationships
     author = relationship("User", back_populates="comments")
@@ -208,8 +208,8 @@ class Comment(Base):
 
 class PostLike(Base):
     __tablename__ = 'post_like'
-    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-    post_id = Column(Integer, ForeignKey('post.id'), primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), primary_key=True)
+    post_id: Mapped[int] = mapped_column(Integer, ForeignKey('post.id'), primary_key=True)
 
     # Define relationships
     user = relationship("User", back_populates="liked_posts")
