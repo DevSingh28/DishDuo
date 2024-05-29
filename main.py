@@ -14,6 +14,7 @@ import random
 from flask_ckeditor import CKEditor
 from functools import wraps
 import os
+from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from datetime import datetime, timezone
 from urllib.parse import urlparse, parse_qs
@@ -110,9 +111,10 @@ def verify_password(user):
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URI3", "sqlite:///main.db")
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+migrate = Migrate(app, db)
 
 
 def ai_generator(components):
